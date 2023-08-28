@@ -51,6 +51,8 @@ int main() {
             struct arp_header* arp_packet = (struct arp_header*)(buffer + sizeof(struct ethhdr));
 
             if (ntohs(arp_packet->operation) == ARP_REQUEST) {
+
+		//HERE We are just detecting the ARP request from the good addresse
                 struct in_addr sender_ip;
                 memcpy(&sender_ip, arp_packet->sender_ip, sizeof(struct in_addr));
 
@@ -58,6 +60,8 @@ int main() {
                 inet_ntop(AF_INET, &sender_ip, sender_ip_str, INET_ADDRSTRLEN);
 
                 printf("ARP Request Received from >%s<\n", sender_ip_str);
+
+		//IF IT Comes from the TARGET address then show it and respond
                 if (strcmp(sender_ip_str, "192.168.56.111") == 0) {
                     printf("TARGET SPOTTED !");
                     printf("TARGET MAC : %02x:%02x:%02x:%02x:%02x:%02x\n",
@@ -65,17 +69,52 @@ int main() {
                        arp_packet->sender_mac[3], arp_packet->sender_mac[4], arp_packet->sender_mac[5]);
 
 		    printf("TARGET IP: %s\n",sender_ip_str);
+
+
+
+	/*	// Construct an ARP reply packet to respond
+               	    struct ethhdr reply_eth_header;
+                    struct arp_header reply_arp_packet;
+
+                // Fill in Ethernet header
+                    memcpy(reply_eth_header.h_dest, eth_header->h_source, 6);
+                // Fill in your MAC address as the sender
+                // Set the Ethernet frame type to ARP
+                    reply_eth_header.h_proto = htons(ETHER_TYPE_ARP);
+
+                // Fill in ARP header
+                    reply_arp_packet.hardware_type = htons(ARPHRD_ETHER);
+                    reply_arp_packet.protocol_type = htons(ETH_P_IP);
+                    reply_arp_packet.hardware_len = 6;
+                    reply_arp_packet.protocol_len = 4;
+                    reply_arp_packet.operation = htons(ARP_REPLY);
+                    memcpy(reply_arp_packet.sender_mac, eth_header->h_dest, 6); // Your MAC
+                    memcpy(reply_arp_packet.sender_ip, arp_packet->target_ip, 4); // Your IP
+                    memcpy(reply_arp_packet.target_mac, arp_packet->sender_mac, 6);
+                    memcpy(reply_arp_packet.target_ip, arp_packet->sender_ip, 4);
+
+                // Construct the reply packet
+                    char reply_packet[42];
+                    memcpy(reply_packet, &reply_eth_header, sizeof(struct ethhdr));
+                    memcpy(reply_packet + sizeof(struct ethhdr), &reply_arp_packet, sizeof(struct arp_header));
+
+                // Send the ARP reply
+                    ssize_t send_size = send(sockfd, reply_packet, sizeof(reply_packet), 0);
+                    if (send_size == -1) {
+                        perror("send");
+                    } else {
+                        printf("Sent ARP reply\n");
+                    }
+*/
+
+
 		}
 
-
-
-             //       printf("Sender IP: %s\n", sender_ip_str);
             }
         }
     }
 
     close(sockfd);
-
     return 0;
 }
 
