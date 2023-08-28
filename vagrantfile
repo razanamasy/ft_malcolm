@@ -1,0 +1,27 @@
+Vagrant.configure(2) do |config|
+  	config.vm.box = "eurolinux-vagrant/centos-stream-9"
+
+	config.vm.define "hrazanamS" do |controlS|
+		controlS.vm.hostname = "hrazanamS"
+		controlS.vm.network "private_network", bridge: "enp0s8", ip: "192.168.56.110" 
+		controlS.vm.provider "virtualbox" do |v|
+			v.customize [ "modifyvm", :id, "--cpus", "2" ]
+			v.customize [ "modifyvm", :id, "--memory", "2048" ]
+			v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      		v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+			v.customize ["modifyvm", :id, "--name", "hrazanamS"]
+		end
+	end
+
+	config.vm.define "hrazanamSW" do |controlSW|
+		controlSW.vm.hostname = "hrazanamSW"
+		controlSW.vm.network "private_network", bridge:"enp0s8", ip: "192.168.56.111"
+		controlSW.vm.provider "virtualbox" do |v|
+			v.customize [ "modifyvm", :id, "--cpus", "2" ]
+			v.customize [ "modifyvm", :id, "--memory", "1024" ]
+			v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      		v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+			v.customize ["modifyvm", :id, "--name", "hrazanamSW"]
+		end
+	end
+end

@@ -51,15 +51,25 @@ int main() {
             struct arp_header* arp_packet = (struct arp_header*)(buffer + sizeof(struct ethhdr));
 
             if (ntohs(arp_packet->operation) == ARP_REQUEST) {
-                printf("ARP Request Received:\n");
+                struct in_addr sender_ip;
+                memcpy(&sender_ip, arp_packet->sender_ip, sizeof(struct in_addr));
 
-                printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+                char sender_ip_str[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &sender_ip, sender_ip_str, INET_ADDRSTRLEN);
+
+                printf("ARP Request Received from >%s<\n", sender_ip_str);
+                if (strcmp(sender_ip_str, "192.168.56.111") == 0) {
+                    printf("TARGET SPOTTED !");
+                    printf("TARGET MAC : %02x:%02x:%02x:%02x:%02x:%02x\n",
                        arp_packet->sender_mac[0], arp_packet->sender_mac[1], arp_packet->sender_mac[2],
                        arp_packet->sender_mac[3], arp_packet->sender_mac[4], arp_packet->sender_mac[5]);
 
-                printf("Sender IP: %d.%d.%d.%d\n",
-                       arp_packet->sender_ip[0], arp_packet->sender_ip[1],
-                       arp_packet->sender_ip[2], arp_packet->sender_ip[3]);
+		    printf("TARGET IP: %s\n",sender_ip_str);
+		}
+
+
+
+             //       printf("Sender IP: %s\n", sender_ip_str);
             }
         }
     }
@@ -68,4 +78,5 @@ int main() {
 
     return 0;
 }
+
 
